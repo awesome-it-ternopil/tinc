@@ -1,0 +1,4 @@
+---
+log_folder: "/opt/cluster/logs/seedAI_dashboard_logs"
+deploy_with_key: False
+...

@@ -1,0 +1,8 @@
+--- # PB
+
+- hosts: hosts
+  become: True
+  vars:
+
+  roles:
+  - application

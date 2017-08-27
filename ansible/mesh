@@ -1,0 +1,35 @@
+[ubiquity]
+lcl-rtr-tinc ansible_host=193.169.81.251
+[hosts]
+tinc-ows-us-01 ansible_host=86.
+tinc-fr-01 ansible_host=212.83.183.250
+
+[region:vars]
+region_name='mesh'
+ansible_ssh_user= centos
+#ansible_ssh_pass=useruser
+ansible_connection=ssh
+ansible_ssh_port= 22
+#ansible_ssh_private_key_file= '~/.vagrant.d/insecure_private_key'
+ansible_ssh_private_key_file= '~/Downloads/palamar'
+
+[ubiquity:vars]
+ansible_ssh_user=nadmin
+ansible_ssh_pass=OpenStack@2016
+ansible_connection=ssh
+ansible_ssh_port= 22
+
+[lcl-rtr-tinc:vars]
+tinc_ip=192.168.0.1
+[tinc-ows-us-01:vars]
+tinc_ip=192.168.0.2
+[tinc-fr-01:vars]
+tinc_ip=192.168.0.3
+
+##################################
+##          childhood           ##
+##################################
+
+[region:children]
+ubiquity
+hosts

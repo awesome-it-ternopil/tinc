@@ -1,0 +1,12 @@
+connection:
+    name: "vpn1"
+root_dir: "/etc/tinc/"
+networks:
+      - '10.10.10.0/24'
+      - '10.200.3.0/24'
+app:
+    group: "tinc"
+    user: "tinc"
+    dirs:
+        home: "{{root_dir}}/{{connection.name}}"
+        hosts: "{{root_dir}}/{{connection.name}}/hosts"
