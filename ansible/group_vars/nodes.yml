@@ -1,6 +1,7 @@
 connection:
     name: "vpn1"
 root_dir: "/etc/tinc/"
+run_on_node: 'tinc-fr-01'
 networks:
       - '10.10.10.0/24'
       - '10.200.3.0/24'

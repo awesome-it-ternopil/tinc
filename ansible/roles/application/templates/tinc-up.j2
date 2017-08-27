@@ -1,0 +1,4 @@
+#!/bin/sh
+ip link set $INTERFACE up
+ip address add {{tinc_ip}}/32 dev $INTERFACE
+#routes for all nets

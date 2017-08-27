@@ -1,7 +1,0 @@
-#!/bin/sh
-ip link set $INTERFACE up
-ip address add 192.168.0.2/32 dev $INTERFACE
-# route for all nets
-ip route add 192.168.0.0/24 dev $INTERFACE
-ip route add 172.17.1.0/24 dev $INTERFACE
-ip route add 10.10.10.0/24 dev $INTERFACE

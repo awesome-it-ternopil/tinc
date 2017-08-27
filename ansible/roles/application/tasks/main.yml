@@ -1,0 +1,142 @@
+---
+- name: Installing tinc
+  yum:
+     name: tinc
+     state: latest
+  delegate_to: '{{run_on_node}}'
+
+#- name: Checking is firewall enabled
+#- name: Adding firewalls rules
+# firewall-cmd port 655
+#firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o eth_ext -j MASQUERADE
+#firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i eth_int -o eth_ext -j ACCEPT
+#firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i eth_ext -o eth_int -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+
+- sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Add app group {{app.group}}
+  become: yes
+  group: >
+        name={{app.group}}
+        state=present
+  delegate_to: '{{run_on_node}}'
+  tags:
+    - update_configs
+
+- name: Add app user {{app.user}}
+  become: yes
+  user: >
+       name={{app.user}}
+       state=present
+       group={{app.group}}
+  delegate_to: '{{run_on_node}}'
+  tags:
+    - update_configs
+
+- name: Creating directories
+  become: yes
+  file: >
+        path={{app.dirs[item]}}/
+        state=directory
+        owner={{app.user}}
+        group={{app.group}}
+        mode="u+rwx,g+rwx,o+rwx"
+        recurse=yes
+  with_items: '{{app.dirs}}'
+  delegate_to: '{{run_on_node}}'
+  tags:
+    - update_configs
+
+- name: Rendering configs from templates
+  become: yes
+  template: src={{ item.template }}
+            dest={{ item.dest }}
+            owner={{app.user}}
+            group={{app.group}}
+  with_items:
+   - {template: "tinc.conf.j2", dest: "{{app.dirs.home}}/tinc.conf"}
+   - {template: "tinc-up.j2", dest: "{{app.dirs.home}}/tinc-up"}
+   - {template: "tinc-down.j2", dest: "{{app.dirs.home}}/tinc-down"}
+  delegate_to: '{{run_on_node}}'
+#  notify:
+#    - restart_service
+#  tags:
+#    - update_configs
+
+- name: Rendering hosts files
+  become: yes
+  template: src={{ item }} dest={{app.dirs.hosts}}/{{ item | basename | regex_replace('\.j2','') }}
+  with_fileglob:
+      - templates/hosts/*.j2
+
+- name: Add networks to tinc.conf file
+  lineinfile:
+    path: '{{app.dirs.home}}/tinc.conf'
+    regexp: '^ConnectTo = '
+    insertafter: '#Nodes'
+    line: 'ConnectTo={{inventory_hostname}}'
+
+- name: Adding routes to tinc-up
+  lineinfile:
+    path: '{{app.dirs.home}}/tinc-up'
+    regexp: '^ConnectTo='
+    insertafter: '#routes'
+    line: 'ip route add {{item}} dev $INTERFACE'
+  with_items: '{{networks}}'
+
+
+##!!!chmod +x /etc/tinc/myvpn/tinc-down.j2
+##chmod +x /etc/tinc/myvpn/tinc-up.j2
+
+#- name: chkconfig --add tinc@{{connection.name}}
+#  become: yes
+#  shell: chkconfig --add tinc@{{connection.name}}
+#
+#- name: Starting application
+#  become: True
+#  service: name=tinc@{{connection.name}}
+#         state=started
+#         enabled=yes
+
+### Enable and start tinc:
+##systemctl enable tinc@myvpn
+##systemctl start tinc@myvpn
+##
+
+#- sysctl:
+#    name: net.ipv4.ip_forward
+#    value: 1
+#    sysctl_set: yes
+#    state: present
+#    reload: yes
+
+
+##
+##
+#
+
+# TODO: enable, start app, run from user, username for hosts files, key generate, several networks
+#- name: get the username running the deploy
+#  local_action: command whoami
+#  register: username_on_the_host
+#
+#- debug: var=username_on_the_host
+#
+#- name: create hosts templates
+#  local_action: template
+#            src=hosts.j2
+#            dest='roles/application/templates/hosts/{{inventory_hostname}}'
+#            owner='{{username_on_the_host.stdout}}'
+#            group='{{app.group}}'
+#
+##!!!- name: Copy private key
+##/etc/tinc/vpn1/rsa_key.priv
+
+
+...

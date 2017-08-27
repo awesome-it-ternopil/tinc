@@ -1,7 +1,7 @@
 [ubiquity]
 #lcl-rtr-tinc ansible_host=193.169.81.251
 [nodes]
-tinc-fr-01 ansible_host=fr-test-01 tinc_ip=192.168.0.3
+tinc-fr-01 ansible_host=fr-test-01 tinc_ip=192.168.0.2
 #tinc-ows-us-01 ansible_host=86.
 
 [region:vars]

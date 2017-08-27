@@ -3,5 +3,5 @@
 - hosts: nodes
   become: True
   roles:
-  - common
+#  - common
   - application
