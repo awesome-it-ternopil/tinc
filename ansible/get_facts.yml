@@ -1,0 +1,7 @@
+---
+- hosts: db_mysql
+  tasks:
+    - name: Getting Facts
+      setup:
+      ignore_errors: yes
+...

@@ -1,8 +1,7 @@
---- # PB
-
-- hosts: hosts
+---
+#- include: get_facts.yml
+- hosts: nodes
   become: True
-  vars:
-
   roles:
+  - common
   - application
