@@ -1,7 +1,0 @@
----
-#- name: restart_service
-#  become: yes
-#  service: >
-#        name={{app.name}}
-#        state=restarted
-...

@@ -1,0 +1,140 @@
+---
+#- name: Adding firewalls rules
+#  become: yes
+#  firewalld:
+#    zone: public
+#    port: 655/tcp
+#    permanent: true
+#    state: enabled
+#  when: not ( security_firewall is defined and not security_firewall )
+#
+#- name: Added masquerade
+#  firewalld:
+#    masquerade: yes
+#    state: enabled
+#    permanent: true
+#    zone: public
+#  when: not ( security_firewall is defined and not security_firewall )
+#
+##firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o eth_ext -j MASQUERADE
+##firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i eth_int -o eth_ext -j ACCEPT
+##firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i eth_ext -o eth_int -m state --state RELATED,ESTABLISHED -j ACCEPT
+#
+#- name: Installing tinc
+#  yum:
+#     name: tinc
+#     state: latest
+#
+#- name: Allowing forwarding
+#  sysctl:
+#    name: net.ipv4.ip_forward
+#    value: 1
+#    sysctl_set: yes
+#    state: present
+#    reload: yes
+#
+#- name: Add app group {{app.group}}
+#  become: yes
+#  group: >
+#        name={{app.group}}
+#        state=present
+#  when: "'nodes' in group_names"
+#  tags:
+#    - update_configs
+#
+#- name: Add app user {{app.user}}
+#  become: yes
+#  user: >
+#       name={{app.user}}
+#       state=present
+#       group={{app.group}}
+#  when: "'nodes' in group_names"
+#  tags:
+#    - update_configs
+#
+#- name: Creating directories
+#  become: yes
+#  file: >
+#        path={{app.dirs[item]}}/
+#        state=directory
+#        owner={{app.user}}
+#        group={{app.group}}
+#        mode="u+rwx,g+rwx,o+rwx"
+#        recurse=yes
+#  with_items: '{{app.dirs}}'
+#  tags:
+#    - update_configs
+
+- name: Rendering configs from templates
+  become: yes
+  template: src={{ item.template }}
+            dest={{ item.dest }}
+            owner={{app.user}}
+            group={{app.group}}
+  with_items:
+   - {template: "tinc.conf.j2", dest: "{{app.dirs.home}}/tinc.conf"}
+   - {template: "tinc-up.j2", dest: "{{app.dirs.home}}/tinc-up"}
+   - {template: "tinc-down.j2", dest: "{{app.dirs.home}}/tinc-down"}
+
+- name: Rendering hosts files
+  become: yes
+  template: >
+        src=hosts.j2
+        dest={{app.dirs.hosts}}/{{item}}
+  with_items: "{{groups['region']}}"
+
+- name: Add networks to tinc.conf file
+  lineinfile:
+    path: '{{app.dirs.home}}/tinc.conf'
+    regexp: '^ConnectTo = '
+    insertafter: '#Nodes'
+    line: 'ConnectTo={{item}}'
+  with_items: "{{groups['region']}}"
+  when: item != "{{inventory_hostname}}"
+
+- name: get variables
+  debug: var=hostvars[inventory_hostname]['networks']
+
+#- name: Adding routes to tinc-up
+#  lineinfile:
+#    path: '{{app.dirs.home}}/tinc-up'
+#    regexp: '^ConnectTo='
+#    insertafter: '#routes'
+#    line: 'ip route add {{ hostvars[item]['networks'] }} dev $INTERFACE'
+#  with_items: "{{groups['region']}}"
+##  when: item != "{{inventory_hostname}}"
+
+#- name: Starting application
+#  become: True
+#  service: name=tinc@{{connection.name}}
+#         state=started
+#         enabled=yes
+#
+##- name: get the username running the deploy
+##  local_action: command whoami
+##  register: username_on_the_host
+##- debug: var=username_on_the_host
+#
+#- include_vars: keys.yml
+#- name: Adding public keys to template
+#  local_action: lineinfile
+#            path='roles/application/templates/hosts.j2'
+#            regexp='-----BEGIN'
+#            insertafter='#Public'
+#            line="{{keys.{{running_host}}.public}}"
+#
+#
+#- name: create hosts templates
+#  local_action: template
+#            src=hosts.j2
+#            dest='roles/application/templates/hosts/{{inventory_hostname}}.j2'
+#            owner='{{username_on_the_host.stdout}}'
+#            group='{{username_on_the_host.stdout}}'
+#            mode="u+rwx,g+rwx,o+rwx"
+#
+##!!!- name: Copy private key
+##/etc/tinc/vpn1/rsa_key.priv
+# TODO: run from user, username for hosts files, key generate
+
+
+...

@@ -1,8 +1,8 @@
 [ubiquity]
-#lcl-rtr-tinc ansible_host=193.169.81.251
+#tinc-lcl-rtr-01 ansible_host=lcl-net-router-01 tinc_ip='192.168.0.1' main_ip='' networks='["10.10.10.94/24"]'
 [nodes]
-tinc-fr-01 ansible_host=fr-test-01 tinc_ip=192.168.0.2
-#tinc-ows-us-01 ansible_host=86.
+tinc_fr_01 ansible_host=fr-test-01 tinc_ip='192.168.0.2' main_ip='212.83.183.200' networks='["172.17.1.0/24", "10.10.10.94/24"]'
+#tinc-ows-us-01 ansible_host=ows-vr-01 tinc_ip='192.168.0.3' networks='["10.10.10.94/24"]'
 
 [region:vars]
 region_name='mesh'
@@ -16,14 +16,6 @@ ansible_ssh_pass=OpenStack@2016
 ansible_connection=ssh
 ansible_ssh_port= 22
 
-#[lcl-rtr-tinc:vars]
-#tinc_ip=192.168.0.1
-
-#[tinc-ows-us-01:vars]
-#tinc_ip=192.168.0.2
-
-#[tinc-fr-01:vars]
-#tinc_ip=192.168.0.3
 
 ##################################
 ##          childhood           ##

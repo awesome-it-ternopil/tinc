@@ -2,6 +2,8 @@
 #- include: get_facts.yml
 - hosts: nodes
   become: True
+  vars:
+      servers_to_monitor: "{{ groups['all'] }}"
   roles:
-#  - common
-  - application
+#    - common
+    - tinc

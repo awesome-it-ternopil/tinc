@@ -1,13 +1,17 @@
+---
 connection:
-    name: "vpn1"
+  name: "vpn1"
 root_dir: "/etc/tinc/"
-run_on_node: 'tinc-fr-01'
+running_host: "{{inventory_hostname}}"
+run_on_node: 'tinc_fr_01'
 networks:
-      - '10.10.10.0/24'
-      - '10.200.3.0/24'
+  - '10.10.10.0/24'
+  - '10.200.3.0/24'
 app:
-    group: "tinc"
-    user: "tinc"
-    dirs:
-        home: "{{root_dir}}/{{connection.name}}"
-        hosts: "{{root_dir}}/{{connection.name}}/hosts"
+  group: "tinc"
+  user: "tinc"
+  dirs:
+    home: "{{root_dir}}/{{connection.name}}"
+    hosts: "{{root_dir}}/{{connection.name}}/hosts"
+server_names: "{{env_spec[region_name]['nginx']['server_names']}}"
+...
