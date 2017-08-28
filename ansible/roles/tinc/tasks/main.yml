@@ -1,69 +1,69 @@
 ---
-#- name: Adding firewalls rules
-#  become: yes
-#  firewalld:
-#    zone: public
-#    port: 655/tcp
-#    permanent: true
-#    state: enabled
-#  when: not ( security_firewall is defined and not security_firewall )
-#
-#- name: Added masquerade
-#  firewalld:
-#    masquerade: yes
-#    state: enabled
-#    permanent: true
-#    zone: public
-#  when: not ( security_firewall is defined and not security_firewall )
-#
-##firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o eth_ext -j MASQUERADE
-##firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i eth_int -o eth_ext -j ACCEPT
-##firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i eth_ext -o eth_int -m state --state RELATED,ESTABLISHED -j ACCEPT
-#
-#- name: Installing tinc
-#  yum:
-#     name: tinc
-#     state: latest
-#
-#- name: Allowing forwarding
-#  sysctl:
-#    name: net.ipv4.ip_forward
-#    value: 1
-#    sysctl_set: yes
-#    state: present
-#    reload: yes
-#
-#- name: Add app group {{app.group}}
-#  become: yes
-#  group: >
-#        name={{app.group}}
-#        state=present
-#  when: "'nodes' in group_names"
-#  tags:
-#    - update_configs
-#
-#- name: Add app user {{app.user}}
-#  become: yes
-#  user: >
-#       name={{app.user}}
-#       state=present
-#       group={{app.group}}
-#  when: "'nodes' in group_names"
-#  tags:
-#    - update_configs
-#
-#- name: Creating directories
-#  become: yes
-#  file: >
-#        path={{app.dirs[item]}}/
-#        state=directory
-#        owner={{app.user}}
-#        group={{app.group}}
-#        mode="u+rwx,g+rwx,o+rwx"
-#        recurse=yes
-#  with_items: '{{app.dirs}}'
-#  tags:
-#    - update_configs
+- name: Adding firewalls rules
+  become: yes
+  firewalld:
+    zone: public
+    port: 655/tcp
+    permanent: true
+    state: enabled
+  when: not ( security_firewall is defined and not security_firewall )
+
+- name: Added masquerade
+  firewalld:
+    masquerade: yes
+    state: enabled
+    permanent: true
+    zone: public
+  when: not ( security_firewall is defined and not security_firewall )
+
+#firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o eth_ext -j MASQUERADE
+#firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i eth_int -o eth_ext -j ACCEPT
+#firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i eth_ext -o eth_int -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+- name: Installing tinc
+  yum:
+     name: tinc
+     state: latest
+
+- name: Allowing forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Add app group {{app.group}}
+  become: yes
+  group: >
+        name={{app.group}}
+        state=present
+  when: "'nodes' in group_names"
+  tags:
+    - update_configs
+
+- name: Add app user {{app.user}}
+  become: yes
+  user: >
+       name={{app.user}}
+       state=present
+       group={{app.group}}
+  when: "'nodes' in group_names"
+  tags:
+    - update_configs
+
+- name: Creating directories
+  become: yes
+  file: >
+        path={{app.dirs[item]}}/
+        state=directory
+        owner={{app.user}}
+        group={{app.group}}
+        mode="u+rwx,g+rwx,o+rwx"
+        recurse=yes
+  with_items: '{{app.dirs}}'
+  tags:
+    - update_configs
 
 - name: Rendering configs from templates
   become: yes
@@ -92,8 +92,11 @@
   with_items: "{{groups['region']}}"
   when: item != "{{inventory_hostname}}"
 
-- name: get variables
-  debug: var=hostvars[inventory_hostname]['networks']
+- name: Starting application
+  become: True
+  service: name=tinc@{{connection.name}}
+         state=started
+         enabled=yes
 
 #- name: Adding routes to tinc-up
 #  lineinfile:
@@ -104,12 +107,6 @@
 #  with_items: "{{groups['region']}}"
 ##  when: item != "{{inventory_hostname}}"
 
-#- name: Starting application
-#  become: True
-#  service: name=tinc@{{connection.name}}
-#         state=started
-#         enabled=yes
-#
 ##- name: get the username running the deploy
 ##  local_action: command whoami
 ##  register: username_on_the_host
