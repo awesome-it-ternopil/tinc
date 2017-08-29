@@ -1,6 +1,6 @@
-Address = {{hostvars[item]['main_ip']}}
-Subnet = {{hostvars[item]['tinc_ip']}}/32
-{% for subnet in hostvars[item]['networks'] %}
+Address = {{hostvars[inventory_hostname]['main_ip']}}
+Subnet = {{hostvars[inventory_hostname]['tinc_ip']}}/32
+{% for subnet in hostvars[inventory_hostname]['networks'] %}
 Subnet = {{subnet}}
 {% endfor %}
 

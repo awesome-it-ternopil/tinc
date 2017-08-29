@@ -91,6 +91,11 @@
     line: 'ConnectTo={{item}}'
   with_items: "{{groups['region']}}"
   when: item != "{{inventory_hostname}}"
+  notify: "restart_service"
+
+- name: Starting application
+  become: True
+  shell: tincd -n {{connection.name}}
 
 - name: Starting application
   become: True

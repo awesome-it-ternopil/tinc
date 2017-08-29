@@ -1,7 +1,5 @@
 ---
-- name: restart_service
-  become: yes
-  service: >
-        name={{app.name}}
-        state=restarted
+  - name: restart_service
+    become: True
+    shell: tincd -n {{connection.name}} -k; wait %1; tincd -n {{connection.name}}
 ...
