@@ -1,5 +1,8 @@
 ---
   - name: restart_service
     become: True
-    shell: tincd -n {{connection.name}} -k; wait %1; tincd -n {{connection.name}}
+    service: >
+        name=tinc@{{connection.name}}
+        state=restarted
+#    shell: tincd -n {{connection.name}} -k; wait; tincd -n {{connection.name}}
 ...

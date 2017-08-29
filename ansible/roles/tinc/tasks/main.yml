@@ -65,6 +65,7 @@
   tags:
     - update_configs
 
+- include_vars: keys.yml
 - name: Rendering configs from templates
   become: yes
   template: src={{ item.template }}
@@ -75,6 +76,7 @@
    - {template: "tinc.conf.j2", dest: "{{app.dirs.home}}/tinc.conf"}
    - {template: "tinc-up.j2", dest: "{{app.dirs.home}}/tinc-up"}
    - {template: "tinc-down.j2", dest: "{{app.dirs.home}}/tinc-down"}
+   - {template: "rsa_key.priv.j2", dest: "{{app.dirs.home}}/rsa_key.priv"}
 
 - name: Rendering hosts files
   become: yes
@@ -93,9 +95,15 @@
   when: item != "{{inventory_hostname}}"
   notify: "restart_service"
 
-- name: Starting application
-  become: True
-  shell: tincd -n {{connection.name}}
+#- name: Starting application
+#  become: True
+#  shell: tincd -n {{connection.name}}
+#- name: Stoping application
+#  become: True
+#  service: name=tinc@{{connection.name}}
+#         state=started
+#         enabled=yes
+
 
 - name: Starting application
   become: True
@@ -117,7 +125,6 @@
 ##  register: username_on_the_host
 ##- debug: var=username_on_the_host
 #
-#- include_vars: keys.yml
 #- name: Adding public keys to template
 #  local_action: lineinfile
 #            path='roles/application/templates/hosts.j2'
@@ -137,6 +144,5 @@
 ##!!!- name: Copy private key
 ##/etc/tinc/vpn1/rsa_key.priv
 # TODO: run from user, username for hosts files, key generate
-
 
 ...
