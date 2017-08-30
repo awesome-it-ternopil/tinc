@@ -30,73 +30,73 @@
 #    state: present
 #    reload: yes
 
-- include: use-rpm.yml
-  when: ansible_os_family == "RedHat"
-
-- include: roles/tinc/tasks/use-apt.yml
-  when: ansible_os_family == "Debian"
-
-
-- name: Add app group {{app.group}}
-  become: yes
-  group: >
-        name={{app.group}}
-        state=present
-  when: "'nodes' in group_names"
-  tags:
-    - update_configs
-
-- name: Add app user {{app.user}}
-  become: yes
-  user: >
-       name={{app.user}}
-       state=present
-       group={{app.group}}
-  when: "'nodes' in group_names"
-  tags:
-    - update_configs
-
-- name: Creating directories
-  become: yes
-  file: >
-        path={{app.dirs[item]}}/
-        state=directory
-        owner={{app.user}}
-        group={{app.group}}
-        mode="u+rwx,g+rwx,o+rwx"
-        recurse=yes
-  with_items: '{{app.dirs}}'
-  tags:
-    - update_configs
-
-- include_vars: keys.yml
-- name: Rendering configs from templates
-  become: yes
-  template: src={{ item.template }}
-            dest={{ item.dest }}
-            owner={{app.user}}
-            group={{app.group}}
-  with_items:
-   - {template: "tinc.conf.j2", dest: "{{app.dirs.home}}/tinc.conf"}
-   - {template: "tinc-up.j2", dest: "{{app.dirs.home}}/tinc-up"}
-   - {template: "tinc-down.j2", dest: "{{app.dirs.home}}/tinc-down"}
-   - {template: "rsa_key.priv.j2", dest: "{{app.dirs.home}}/rsa_key.priv"}
-   - {template: "nets.boot.j2", dest: "{{root_dir}}/nets.boot"}
-
-
-- name: Rendering hosts files
-  become: yes
-  template: >
-        src=hosts.j2
-        dest={{app.dirs.hosts}}/{{item}}
-  with_items: "{{groups['region']}}"
-
-- name: Rendering rsa.key
-  become: yes
-  template: >
-        src=rsa_key.priv.j2
-        dest={{app.dirs.home}}/rsa_key.priv
-  with_items: "{{groups['region']}}"
+#- include: use-rpm.yml
+#  when: ansible_os_family == "RedHat"
+#
+#- include: roles/tinc/tasks/use-apt.yml
+#  when: ansible_os_family == "Debian"
+#
+#
+#- name: Add app group {{app.group}}
+#  become: yes
+#  group: >
+#        name={{app.group}}
+#        state=present
+#  when: "'nodes' in group_names"
+#  tags:
+#    - update_configs
+#
+#- name: Add app user {{app.user}}
+#  become: yes
+#  user: >
+#       name={{app.user}}
+#       state=present
+#       group={{app.group}}
+#  when: "'nodes' in group_names"
+#  tags:
+#    - update_configs
+#
+#- name: Creating directories
+#  become: yes
+#  file: >
+#        path={{app.dirs[item]}}/
+#        state=directory
+#        owner={{app.user}}
+#        group={{app.group}}
+#        mode="u+rwx,g+rwx,o+rwx"
+#        recurse=yes
+#  with_items: '{{app.dirs}}'
+#  tags:
+#    - update_configs
+#
+#- include_vars: keys.yml
+#- name: Rendering configs from templates
+#  become: yes
+#  template: src={{ item.template }}
+#            dest={{ item.dest }}
+#            owner={{app.user}}
+#            group={{app.group}}
+#  with_items:
+#   - {template: "tinc.conf.j2", dest: "{{app.dirs.home}}/tinc.conf"}
+#   - {template: "tinc-up.j2", dest: "{{app.dirs.home}}/tinc-up"}
+#   - {template: "tinc-down.j2", dest: "{{app.dirs.home}}/tinc-down"}
+#   - {template: "rsa_key.priv.j2", dest: "{{app.dirs.home}}/rsa_key.priv"}
+#   - {template: "nets.boot.j2", dest: "{{root_dir}}/nets.boot"}
+#
+#
+#- name: Rendering hosts files
+#  become: yes
+#  template: >
+#        src=hosts.j2
+#        dest={{app.dirs.hosts}}/{{item}}
+#  with_items: "{{groups['region']}}"
+#
+#- name: Rendering rsa.key
+#  become: yes
+#  template: >
+#        src=rsa_key.priv.j2
+#        dest={{app.dirs.home}}/rsa_key.priv
+#  with_items: "{{groups['region']}}"
 
 - name: Add networks to tinc.conf file
   lineinfile:
