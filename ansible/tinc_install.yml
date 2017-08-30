@@ -1,6 +1,6 @@
 ---
 #- include: get_facts.yml
-- hosts: nodes
+- hosts: all
   become: True
   vars:
       servers_to_monitor: "{{ groups['all'] }}"

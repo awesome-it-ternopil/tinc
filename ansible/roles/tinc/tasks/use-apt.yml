@@ -1,0 +1,13 @@
+---
+- name: Installing tinc
+  yum:
+     name: tinc
+     state: latest
+  ignore_errors: yes
+
+#- name: Rendering tinc init script
+#  become: yes
+#  template: >
+#        src=tinc.init.j2
+#        dest=/etc/init.d/tinc
+...

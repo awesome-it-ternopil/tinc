@@ -1,8 +1,14 @@
 ---
-  - name: restart_service
-    become: True
-    service: >
-        name=tinc@{{connection.name}}
-        state=restarted
-#    shell: tincd -n {{connection.name}} -k; wait; tincd -n {{connection.name}}
-...
+- name: restart_service
+  service: >
+    name=tinc@{{connection.name}}
+    state=restarted
+  when: ansible_os_family == "RedHat"
+
+- name: restart_service
+  become: True
+  service:
+    name: tinc
+    state: restarted
+  when: ansible_os_family == "Debian"
+ ...

@@ -1,2 +1,11 @@
 #!/bin/sh
 ip link set $INTERFACE down
+ip address del 192.168.0.0/24 dev $INTERFACE
+#routes for all nets
+{% for node in groups['all'] %}
+{% if (node != inventory_hostname) %}
+{% for list in  hostvars[node]['networks'] %}
+ip route del {{list}} dev $INTERFACE
+{%endfor%}
+{% endif %}
+{%endfor%}

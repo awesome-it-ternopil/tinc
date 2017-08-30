@@ -1,9 +1,9 @@
-Address = {{hostvars[inventory_hostname]['main_ip']}}
-Subnet = {{hostvars[inventory_hostname]['tinc_ip']}}/32
-{% for subnet in hostvars[inventory_hostname]['networks'] %}
+Address = {{hostvars[item]['main_ip']}}
+Subnet = {{hostvars[item]['tinc_ip']}}/32
+{% for subnet in hostvars[item]['networks'] %}
 Subnet = {{subnet}}
 {% endfor %}
 
 #Public key
-
-{{keys[inventory_hostname]['public']}}
+# {{item}}
+{{keys[item]['public']}}

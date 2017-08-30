@@ -1,0 +1,19 @@
+---
+- name: Installing tinc
+  yum:
+     name: tinc
+     state: latest
+  ignore_errors: yes
+
+- name: Rendering tinc.service files
+  become: yes
+  template: >
+        src=tinc.service.j2
+        dest=/usr/lib/systemd/system/tinc.service
+
+- name: Rendering tinc@.service files
+  become: yes
+  template: >
+        src=tinc@.service.j2
+        dest=/usr/lib/systemd/system/tinc@.service
+...
