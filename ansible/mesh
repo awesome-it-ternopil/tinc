@@ -1,5 +1,5 @@
 [ubiquity]
-tinc_lcl_rtr_01 ansible_host=lcl-net-router-01 tinc_ip='192.168.0.1' main_ip='193.169.81.251' networks='["10.10.10.0/24", "10.20.10.0/24"]'
+tinc_lcl_rtr_01 ansible_host=lcl-net-router-01 tinc_ip='192.168.0.1' main_ip='193.169.81.251' networks='["10.10.10.0/24", "10.20.10.0/24", "10.200.0.0/24"]'
 [nodes]
 tinc_fr_01 ansible_host=fr-stg-vr-01 tinc_ip='192.168.0.2' main_ip='212.83.183.200' networks='["172.17.1.0/24"]'
 tinc_ows_us_01 ansible_host=ows-vr-01 tinc_ip='192.168.0.3' main_ip='86.111.189.6' networks='["10.200.3.0/24"]'
