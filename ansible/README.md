@@ -1,33 +1,22 @@
-firewall-cmd --zone=public --add-port=655/tcp  --permanent
-yum install tinc -y
-mkdir /etc/tinc/{{connection.name}}/hosts
-template tinc-up
-template tinc-down
-template tinc.conf
-sudo chmod 755 /etc/tinc/myvpn/tinc-*
-tincd -n myvpn -K4096
+For installing new node
 
-sudo sed -e 's/#net\.ipv4\.ip_forward=1/net\.ipv4\.ip_forward=1/g' -i /etc/sysctl.conf
-sudo sysctl -w net.ipv4.ip_forward=1
+Add new node to ssh config file
+Update inventory file mesh:
+1) Add new node with tinc_ip, public_ip 
+2) Generate pair of keyys
+```
+ssh-keygen -4096 nodename
+```
+3) Copy generated keys to keys.yml
 
-firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o eth_ext -j MASQUERADE
-firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i eth_int -o eth_ext -j ACCEPT
-firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i eth_ext -o eth_int -m state --state RELATED,ESTABLISHED -j ACCEPT
+For delete node from mesh:
+1) Remove node from inventory mesh file
+2) Delete key from vars/keys.yml
 
+For deactivating crypto  
 
-rsync hosts
-rsync -a nadmin@193.169.81.251:/etc/tinc/vpn1/hosts .
-rsync -a nadmin@86.111.189.6:/etc/tinc/vpn1/hosts .
-rsync -a nadmin@193.169.81.251:/etc/tinc/vpn1/tinc.conf ../.
+For using only tcp
 
-chmod +x /etc/tinc/myvpn/tinc-up
-chmod +x /etc/tinc/myvpn/tinc-down
-# Enable and start tinc:
-systemctl enable tinc@myvpn
-systemctl start tinc@myvpn
+For enabing masquerade
 
-add string with new host to all conf
-
-
-https://community.ubnt.com/t5/EdgeMAX/Multisite-VPN-using-Edgerouter/m-p/1301568#M72109
-# tinc
+For enabing forwarding
