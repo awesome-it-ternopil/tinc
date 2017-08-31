@@ -96,7 +96,6 @@
   template: >
         src=rsa_key.priv.j2
         dest={{app.dirs.home}}/rsa_key.priv
-  with_items: "{{groups['region']}}"
 
 - name: Add networks to tinc.conf file
   lineinfile:
